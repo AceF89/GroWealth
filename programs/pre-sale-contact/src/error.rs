@@ -12,6 +12,8 @@ pub enum PresaleErrorCodes {
     InvalidMintedToken,
     #[msg("Invalid Purchase Amount")]
     InvalidPurchaseAmount,
+    #[msg("Failed due to payment_amount being 0 or less than 0.")]
+    ZeroPaymentAmount,
     #[msg("Invalid Time")]
     InvalidTime,
     #[msg("Error during calculating the price ")]

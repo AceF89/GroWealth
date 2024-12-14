@@ -27,7 +27,6 @@ pub fn purchase_token_handler(ctx: Context<PurchaseToken>, token_amount: u64) ->
 
     // Presale token (Token-2022) decimals
     let token_decimal_value = (10u64).pow(ctx.accounts.token_mint.decimals as u32);
-    let decimal = token_decimal_value / payment_decimal_value;
 
     require!(
         current_unix_timestamp >= ctx.accounts.presale_account.start_time &&
@@ -37,34 +36,40 @@ pub fn purchase_token_handler(ctx: Context<PurchaseToken>, token_amount: u64) ->
 
     // Check token_amount is within the buyable range
     require!(
-        token_amount * decimal >= ctx.accounts.presale_account.minimum_buyable_amount &&
+        token_amount >= ctx.accounts.presale_account.minimum_buyable_amount &&
             token_amount <= ctx.accounts.presale_account.maximum_buyable_amount,
         PresaleErrorCodes::InvalidPurchaseAmount
     );
-    
+
     // Calculate the USDC payment amount
     let payment_amount =
         ctx.accounts.presale_account.token_price_in_usdc * (token_amount / token_decimal_value);
     msg!("Payment amount: {}", (payment_amount as f64) / (payment_decimal_value as f64));
 
-    // Transfer USDC payment from buyer to creator
-    anchor_spl::token::transfer_checked(
-        ctx.accounts.transfer_usdc_payment_to_creator(),
-        payment_amount,
-        ctx.accounts.payment_mint.decimals
-    )?;
-    msg!("Payment Done");
+    // Ensure payment_amount is greater than 0
+    require!(payment_amount > 0, PresaleErrorCodes::ZeroPaymentAmount);
 
-    // Now transfer the presale tokens (Token-2022) from presale to buyer
-    let bump = ctx.accounts.presale_account.bump;
-    anchor_spl::token_interface::transfer_checked(
-        ctx.accounts.transfer_presale_token_to_buyer().with_signer(&[&[PRESALE_SEED, &[bump]]]),
-        token_amount,
-        ctx.accounts.token_mint.decimals
-    )?;
-    msg!("Token bought successfully");
+    if payment_amount > 0 {
+        // Transfer USDC payment from buyer to creator
+        anchor_spl::token::transfer_checked(
+            ctx.accounts.transfer_usdc_payment_to_creator(),
+            payment_amount,
+            ctx.accounts.payment_mint.decimals
+        )?;
+        msg!("Payment Done");
 
-    ctx.accounts.presale_account.total_tokens -= token_amount;
+        // Now transfer the presale tokens (Token-2022) from presale to buyer
+        let bump = ctx.accounts.presale_account.bump;
+        anchor_spl::token_interface::transfer_checked(
+            ctx.accounts.transfer_presale_token_to_buyer().with_signer(&[&[PRESALE_SEED, &[bump]]]),
+            token_amount,
+            ctx.accounts.token_mint.decimals
+        )?;
+        msg!("Token bought successfully");
+
+        ctx.accounts.presale_account.total_tokens -= token_amount;
+    } else {
+    }
 
     emit!(PurchaseTokenEvent {
         buyer: ctx.accounts.buyer.key(),
