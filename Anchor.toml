@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-pre_sale_contract = "4zN5GLABGR1zqjSfpWmcdRAvLr5YnLUWxfcfAvDguBS9"
+pre_sale_contract = "527XcBu1LynMXgSejdn9pQv8uarP29oMdGVkuyZ28ngS"
 
 [registry]
 url = "https://api.apr.dev"

@@ -32,14 +32,14 @@ pub struct WithdrawToken<'info> {
         mut,
         seeds = [CREATOR_SEED, authority.key().as_ref()],
         bump,
-        constraint = creator_account.creator.key() == authority.key()
+        constraint = creator_account.creator.key().as_ref() == authority.key().as_ref()
         @PresaleErrorCodes::InvalidCreator
     )]
     pub creator_account: Box<Account<'info, CreatorAccount>>,
     #[account(
         seeds = [PRESALE_SEED],
         bump,
-        constraint = presale_account.authority == authority.key()
+        constraint = presale_account.authority.key().as_ref() == authority.key().as_ref()
     )]
     pub presale_account: Box<Account<'info, PresaleAccount>>,
     #[account(
@@ -55,7 +55,7 @@ pub struct WithdrawToken<'info> {
     pub admin_token_ata: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         mut,
-        constraint=token_mint.key().as_ref() == presale_program_data.token_mint.as_ref()
+        constraint=token_mint.key().as_ref() == presale_program_data.token_mint.key().as_ref()
         @PresaleErrorCodes::InsufficientMintedToken,
     )]
     pub token_mint: Box<InterfaceAccount<'info, Mint>>,

@@ -103,7 +103,7 @@ pub struct PurchaseToken<'info> {
     )]
     pub buyer_token_ata: Box<InterfaceAccount<'info, TokenAccount2022>>,
     #[account(mut,
-        constraint = buyer_payment_ata.mint.key().to_string() == USDC_TEST_MINT_PUBKEY_STR 
+        constraint = buyer_payment_ata.mint.key().to_string() == USDC_MINT_PUBKEY_STR 
         @ PresaleErrorCodes::InvalidPaymentMint
     )]
     pub buyer_payment_ata: Account<'info, TokenAccountLegacy>,
@@ -123,7 +123,7 @@ pub struct PurchaseToken<'info> {
     pub token_mint: Box<InterfaceAccount<'info, Mint2022>>,
     #[account( 
         mut,
-        constraint = payment_mint.key().to_string() == USDC_TEST_MINT_PUBKEY_STR 
+        constraint = payment_mint.key().to_string() == USDC_MINT_PUBKEY_STR 
         @ PresaleErrorCodes::InvalidPaymentMint
     )]
     pub payment_mint: Account<'info, MintLegacy>,

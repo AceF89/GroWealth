@@ -7,7 +7,7 @@ pub mod state;
 pub mod events;
 use crate::processor::*;
 
-declare_id!("4zN5GLABGR1zqjSfpWmcdRAvLr5YnLUWxfcfAvDguBS9");
+declare_id!("527XcBu1LynMXgSejdn9pQv8uarP29oMdGVkuyZ28ngS");
 
 #[program]
 pub mod pre_sale_contract {

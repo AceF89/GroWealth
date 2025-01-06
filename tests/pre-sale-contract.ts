@@ -37,19 +37,19 @@ describe("pre-sale-contract", () => {
 
   const authority = Keypair.fromSecretKey(
     base58.decode(
-      "3bnhkgJF7h73KmEmqgMA5AFNQtaPwbEb9iWH76LGmc9f4Ub8jaNkVT5VcuRQTenRXMitVU9YaYdkHofTdvjatE3"
+      ""
     )
   );
 
   const buyer = Keypair.fromSecretKey(
     base58.decode(
-      "5fUnbzNh6bRVHFBuMuaSVmQL73KaFiJyg6nhopGf15gCF2q2WwVoqnGX6RsqvMrSX3L4xFYHNxoE61JwTzkBGQib"
+      ""
     )
   );
 
   const feePayer = Keypair.fromSecretKey(
     base58.decode(
-      "2ZvrwHSG1TjLJiQ3wUdp5jEkLZNGpRZytjMTCSkJ5LBKuYsCGctHxcXeCwxYQwGKvin8ffnKaPFgBkhDzAuBd39h"
+      ""
     )
   );
   const [presaleAccountPDA] = PublicKey.findProgramAddressSync(
@@ -346,7 +346,7 @@ describe("pre-sale-contract", () => {
 
   it("Purchase the token", async () => {
     try {
-      let tokenAmount = new anchor.BN(2 * LAMPORTS_PER_SOL);
+      let tokenAmount = new anchor.BN(20 * LAMPORTS_PER_SOL);
 
       // const creatorPaymentTokenAta = await TokenClass.mintTokenTo(
       //   connection,
@@ -509,39 +509,39 @@ describe("pre-sale-contract", () => {
 
       // console.log(ix);
 
-      // const signature = await connection.sendTransaction(
-      //   tx,
-      //   [feePayer, buyer, authority],
-      //   {
-      //     skipPreflight: false,
-      //     preflightCommitment: "confirmed", // Set preflight commitment level
-      //   }
-      // );
+      const signature = await connection.sendTransaction(
+        tx,
+        [feePayer, buyer, authority],
+        {
+          skipPreflight: false,
+          preflightCommitment: "confirmed", // Set preflight commitment level
+        }
+      );
 
-      // console.log("Transaction sent with signature:", signature);
+      console.log("Transaction sent with signature:", signature);
 
-      // // Wait for confirmation
-      // const latestBlockhash = await connection.getLatestBlockhash();
-      // const confirmation = await connection.confirmTransaction(
-      //   {
-      //     signature,
-      //     blockhash: latestBlockhash.blockhash,
-      //     lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-      //   },
-      //   "confirmed" // Set the desired confirmation level here
-      // );
+      // Wait for confirmation
+      const latestBlockhash = await connection.getLatestBlockhash();
+      const confirmation = await connection.confirmTransaction(
+        {
+          signature,
+          blockhash: latestBlockhash.blockhash,
+          lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+        },
+        "confirmed" // Set the desired confirmation level here
+      );
 
-      // if (confirmation.value.err) {
-      //   console.error("Transaction failed:", confirmation.value.err);
-      //   throw new Error("Transaction failed");
-      // }
-      // // Fetch the transaction details using getTransaction
-      // const transactionDetails = await connection.getTransaction(signature, {
-      //   commitment: "confirmed",
-      // });
+      if (confirmation.value.err) {
+        console.error("Transaction failed:", confirmation.value.err);
+        throw new Error("Transaction failed");
+      }
+      // Fetch the transaction details using getTransaction
+      const transactionDetails = await connection.getTransaction(signature, {
+        commitment: "confirmed",
+      });
 
-      // // Display transaction logs
-      // console.log(transactionDetails.meta.logMessages);
+      // Display transaction logs
+      console.log(transactionDetails.meta.logMessages);
 
       // const balancePresaleToken = await connection.getTokenAccountBalance(
       //   presaleTokenAta
@@ -573,67 +573,67 @@ describe("pre-sale-contract", () => {
     }
   });
 
-  it("Withdraw the token", async () => {
-    try {
-      let token = 30;
-      let token_amount = new anchor.BN(token * LAMPORTS_PER_SOL);
+  // it("Withdraw the token", async () => {
+  //   try {
+  //     let token = 30;
+  //     let token_amount = new anchor.BN(token * LAMPORTS_PER_SOL);
 
-      console.log(`
-        Presale token balance before withdraw ammount of ${token} \n
-        token balance is: ${
-          (await connection.getTokenAccountBalance(presaleTokenAta)).value
-            .uiAmount
-        }`);
+  //     console.log(`
+  //       Presale token balance before withdraw ammount of ${token} \n
+  //       token balance is: ${
+  //         (await connection.getTokenAccountBalance(presaleTokenAta)).value
+  //           .uiAmount
+  //       }`);
 
-      const withdrawTokenData = {
-        authority: authority.publicKey,
-        presaleTokenAta: presaleTokenAta,
-        adminTokenAta: adminTokenAta,
-        tokenMint: tokenMint,
-      };
-      const ix = await program.methods
-        .withdrawToken(token_amount)
-        .accounts(withdrawTokenData)
-        .instruction();
+  //     const withdrawTokenData = {
+  //       authority: authority.publicKey,
+  //       presaleTokenAta: presaleTokenAta,
+  //       adminTokenAta: adminTokenAta,
+  //       tokenMint: tokenMint,
+  //     };
+  //     const ix = await program.methods
+  //       .withdrawToken(token_amount)
+  //       .accounts(withdrawTokenData)
+  //       .instruction();
 
-      const tx = new Transaction();
-      tx.add(ix);
+  //     const tx = new Transaction();
+  //     tx.add(ix);
 
-      const signature = await sendAndConfirmTransaction(connection, tx, [
-        authority,
-      ]);
+  //     const signature = await sendAndConfirmTransaction(connection, tx, [
+  //       authority,
+  //     ]);
 
-      console.log("Withdraw Token Signature:", signature);
+  //     console.log("Withdraw Token Signature:", signature);
 
-      // console.log("Admin Token ATA:", adminTokenAta.toBase58());
+  //     // console.log("Admin Token ATA:", adminTokenAta.toBase58());
 
-      const balanceAdminToken = await connection.getTokenAccountBalance(
-        adminTokenAta
-      );
+  //     const balanceAdminToken = await connection.getTokenAccountBalance(
+  //       adminTokenAta
+  //     );
 
-      const balancePresaleToken = await connection.getTokenAccountBalance(
-        presaleTokenAta
-      );
+  //     const balancePresaleToken = await connection.getTokenAccountBalance(
+  //       presaleTokenAta
+  //     );
 
-      console.log(
-        `Admin Token ATA Balance: ${await balanceAdminToken.value.uiAmount}`
-      );
-      console.log(
-        `Presale Token ATA Balance: ${await balancePresaleToken.value.uiAmount}`
-      );
-    } catch (error) {
-      if (
-        (await connection.getTokenAccountBalance(presaleTokenAta)).value
-          .uiAmount == 0
-      ) {
-        const errorLog = error.logs.find((log: any) =>
-          log.includes("insufficient funds")
-        );
-      }
-      console.log(error);
-      throw error;
-    }
-  });
+  //     console.log(
+  //       `Admin Token ATA Balance: ${await balanceAdminToken.value.uiAmount}`
+  //     );
+  //     console.log(
+  //       `Presale Token ATA Balance: ${await balancePresaleToken.value.uiAmount}`
+  //     );
+  //   } catch (error) {
+  //     if (
+  //       (await connection.getTokenAccountBalance(presaleTokenAta)).value
+  //         .uiAmount == 0
+  //     ) {
+  //       const errorLog = error.logs.find((log: any) =>
+  //         log.includes("insufficient funds")
+  //       );
+  //     }
+  //     console.log(error);
+  //     throw error;
+  //   }
+  // });
 
   // it("Rewoke the access ", async () => {
   //   try {
